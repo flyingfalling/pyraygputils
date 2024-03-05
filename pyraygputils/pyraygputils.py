@@ -10,6 +10,12 @@ from ray.util.multiprocessing import Pool;
 def mb2gb(mb):
     return mb/1e3;
 
+def gpumem_from_resourcename(gpuresourcename):
+    gpures = gpuresourcename;
+    pattern='gpu([0-9])+gb';
+    match = re.match(pattern, gpures);
+    reqgb = int(match.group(1));
+    return reqgb;
 
 def resource_name_from_gpumem(gpumem):
     gpumem=int(gpumem);
@@ -174,12 +180,36 @@ def check_gpu_runnable( gpuidx, requested_gpumem_gb ):
     #REV: GPUtils mb2gb(gpu.memoryFree())
     return isready;
 
-def init_gpu_for_task( requested_gpumem_gb ):
+
+
+def init_gpu_for_task( requested_gpumem_gb=0 ):
     import ray;
-    myrequestedresources = ray.get_runtime_context().get_assigned_resources();
+    if( requested_gpumem_gb <= 0 ):
+        requestedresources = ray.get_runtime_context().get_assigned_resources();
+        keylist=[k for k in requestedresources if k.startswith('gpu')];
+        if( len(keylist) > 0 ):
+            print("GOT GPU KEYS: {}".format(keylist));
+            pass;
+        else:
+            print("NO GPUs on node (this should not run...)");
+            return False, dict(), 'NO_GPUS_ON_NODE';
+
+        if( len(keylist) > 1 ):
+            raise Exception("More than 1 gpu mem type requested? {}".format(keylist));
+
+        gpures = keylist[0];
+        pattern='gpu([0-9])+gb';
+        match = re.match(pattern, gpures);
+        #reqgb = int(match.group(1));
+        requested_gpumem_gb = int(match.group(1));
+        resourcename = gpures;
+        pass;
+    else:
+        resourcename=resource_name_from_gpumem(requested_gpumem_gb);
+        pass;
+    
     myresourceids = ray.get_runtime_context().worker.core_worker.resource_ids();
     
-    resourcename=resource_name_from_gpumem(requested_gpumem_gb);
     #resourcename='gpu8gb'; #REV for example
     
     #REV: only works if env variable RAY_custom_unit_instance_resources is defined before
@@ -269,9 +299,7 @@ def init_gpu_for_task( requested_gpumem_gb ):
     #REV: device 0, device 1, device 2 (i.e. will only select the visible ones)
     #REV: not original indices, which may be e.g. index 2,3 (ignoring 0,1).
     #REV: so 2 will be 0, 3 will be 1?
-    return isready, truegpuids;
-
-
+    return isready, truegpuids, resourcename;
 
 
 
