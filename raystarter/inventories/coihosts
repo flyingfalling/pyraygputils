@@ -1,0 +1,59 @@
+## set up ssh user name and path to python3 ##
+[all:vars]
+ansible_become_method=sudo
+ansible_python_interpreter='/usr/bin/env python3'
+
+## ray startup variables ##
+rayheadnode=mazda0
+rayport=6379
+
+#REV: path to the virtual environment containing ray (will be sourced on each node)
+rayvenvpath=~/venvs/rayvenv
+
+## REV: command that will be called to generate the ray command (a python script
+## installed in bin by this package hopefully, expect pygenerateraystart).
+raystartcmdgenerator=python3 ~/code/ray/generate_ray_commands.py
+#pygenerateraystart
+
+#REV: set to true for debug (will not start ray, just print per-node commands to files)
+RAYDEBUG=true
+
+#REV: dir to output ray commands to (for debug)
+RAYDEBUGDIR=~/
+
+###########################
+
+# define ray head node here (doing separate because may have different names e.g. ipaddr
+# vs hostname).
+
+# You may define customresources by naming your variable XXX raycustomresource_XXX
+# per-node. You may set numcpus per node to a different value than number of processors
+# using numcpus=N
+
+[rayheadnodes]
+#32 #REV: full load
+mazda0 raycustomresource_mything1=1 raycustomresource_mything2=3
+
+
+
+# define ray worker nodes here
+
+[rayworkernodes]
+#56 #REV: part load
+coi0 raycustomresource_mything1=1 raycustomresource_mything2=2
+
+#24 #REV: half load
+coi1 numcpus=12 raycustomresource_mything1=2
+
+#40 #REV: part load
+coi2 numcpus=28 raycustomresource_mything1=3 raycustomresource_mything2=1
+
+#40 #REV: part load
+coi3 numcpus=28 raycustomresource_mything1=1 raycustomresource_mything2=0
+
+#64 #REV: full load
+coi4 numcpus=64 raycustomresource_mything1=1 raycustomresource_mything2=1
+
+#32 REV: full load
+kokusai0 numcpus=32 raycustomresource_mything1=1 raycustomresource_mything2=1
+

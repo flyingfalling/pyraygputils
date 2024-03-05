@@ -1,0 +1,41 @@
+---
+## REV: get head auto https://stackoverflow.com/questions/48367708/ansible-get-hostname-as-defined-in-inventory
+## group_names|first
+
+
+- hosts: workernodes
+  vars:
+   virtualenv_path: ~/venvs/rayvenv
+   user: "{{ lookup('env','USER') }}"
+   headhost: mazda0
+   rayport: 6379
+  tasks:
+  - name: STOP ray worker
+    delegate_to: 127.0.0.1
+    ansible.builtin.command: ssh {{inventory_hostname}} '{{virtualenv_path}}/bin/ray stop'
+    #ansible.builtin.shell: ~/.local/bin/ray start --head --port=6379
+    register: result
+
+
+
+- hosts: headnodes
+  vars:
+   virtualenv_path: ~/venvs/rayvenv
+   user: "{{ lookup('env','USER') }}"
+   headhost: mazda0
+   rayport: 6379
+  tasks:
+  - name: STOP ray head
+    become_user: "{{ user }}"
+    become: true
+    delegate_to: 127.0.0.1
+    ansible.builtin.command: ssh {{inventory_hostname}} '{{virtualenv_path}}/bin/ray stop'
+#    https://superuser.com/questions/306530/run-remote-ssh-command-with-full-login-shell
+#    ansible.builtin.command: ssh {{inventory_hostname}} -tt 'bash -l -c "ray start --head --port=6379"'
+    #ansible.builtin.shell: ~/.local/bin/ray start --head --port=6379
+    register: result
+
+
+
+
+...

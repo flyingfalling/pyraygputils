@@ -1,0 +1,23 @@
+---
+- hosts: rayheadnodes
+  vars:
+   user: "{{ lookup('env','USER') }}"
+  tasks:
+  - name: Start ray head node
+    remote_user: "{{ user }}"
+    delegate_to: 127.0.0.1
+    ansible.builtin.command: ssh {{inventory_hostname}} 'source {{rayvenvpath}}/bin/activate && cmd=`{{raystartcmdgenerator}} --ishead --port={{rayport}} {% if hostvars[inventory_hostname].numcpus is defined %} --ncpu={{hostvars[inventory_hostname].numcpus}} {% endif %} {% for item in hostvars[inventory_hostname] %} {% if item is match("raycustomresource_*") %} --customresource {{item}} 1 {% endif %} {% endfor %}` && {% if RAYDEBUG is match("true") %} echo "$cmd"  &>{{RAYDEBUGDIR}}/{{inventory_hostname}}.out {% else %} bash -c "$cmd" {% endif %}'
+    register: result
+
+
+- hosts: rayworkernodes
+  vars:
+   user: "{{ lookup('env','USER') }}"
+  tasks:
+  - name: Start ray worker node
+    remote_user: "{{ user }}"
+    delegate_to: 127.0.0.1
+    ansible.builtin.command: ssh {{inventory_hostname}} 'source {{rayvenvpath}}/bin/activate && cmd=`{{raystartcmdgenerator}} --headnode={{rayheadnode}} --port={{rayport}} {% if hostvars[inventory_hostname].numcpus is defined %} --ncpu={{hostvars[inventory_hostname].numcpus}} {% endif %} {% for item in hostvars[inventory_hostname] %} {% if item is match("raycustomresource_*") %} --customresource {{item}} 1 {% endif %} {% endfor %}` && {% if RAYDEBUG is match("true") %} echo "$cmd"  &>{{RAYDEBUGDIR}}/{{inventory_hostname}}.out {% else %} bash -c "$cmd" {% endif %}'
+    register: result
+
+...
