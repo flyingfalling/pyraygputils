@@ -1,6 +1,5 @@
 ## set up ssh user name and path to python3 ##
 [all:vars]
-ansible_become_method=sudo
 ansible_python_interpreter='/usr/bin/env python3'
 
 ## ray startup variables ##
@@ -12,11 +11,11 @@ rayvenvpath=~/venvs/rayvenv
 
 ## REV: command that will be called to generate the ray command (a python script
 ## installed in bin by this package hopefully, expect pygenerateraystart).
-raystartcmdgenerator=python3 ~/code/ray/generate_ray_commands.py
-#pygenerateraystart
+#raystartcmdgenerator=python3 ~/code/ray/generate_ray_commands.py
+raystartcmdgenerator=pygenerateraystart
 
 #REV: set to true for debug (will not start ray, just print per-node commands to files)
-RAYDEBUG=true
+RAYDEBUG=false
 
 #REV: dir to output ray commands to (for debug)
 RAYDEBUGDIR=~/

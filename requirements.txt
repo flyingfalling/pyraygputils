@@ -1,0 +1,5 @@
+setuptools
+gputils
+ray
+argparse
+#ansible # you should install ansible using system package ideally

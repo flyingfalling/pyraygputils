@@ -3,8 +3,9 @@ import sys;
 import argparse;
 import re;
 os.environ["RAY_DEDUP_LOGS"] = "0";
-from ray.util.multiprocessing import Pool;
 import ray;
+from ray.util.multiprocessing import Pool;
+
 
 def mb2gb(mb):
     return mb/1e3;
@@ -426,12 +427,12 @@ def generate_ray_start_cmd(args):
     cmd = prefix + " && " + cmd; #"'";
     return cmd;
 
-def main():
+def generate_ray_commands():
     parser = argparse.ArgumentParser();
     parser.add_argument("--ishead",
                         action="store_true",
                         help="Pass for head node command (else will start worker)",
-                        default=False  );
+                        default=True );
     parser.add_argument("--headnode", type=str, help="IP/hostname for head node");
     parser.add_argument("--port", type=str, help="Network port on which to communicate RAY", default=6379);
     parser.add_argument("--customresource", nargs=2, action='append', type=str, help="Add a custom resource");
@@ -443,6 +444,10 @@ def main():
     parser.add_argument("--memgb", type=int, help="Set (override) total mem (GB) of this node");
     args = parser.parse_args();
 
+    if( args.headnode ):
+        args.ishead = False;
+        pass;
+    
     if( args.customresource ):
         for i,cr in enumerate(args.customresource):
             args.customresource[i][1] = int(args.customresource[i][1]);
@@ -454,5 +459,5 @@ def main():
     return 0;
 
 if __name__ == '__main__':
-    exit(main());
+    exit(generate_ray_commands());
     pass;
