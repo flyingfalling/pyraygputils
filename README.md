@@ -1,5 +1,7 @@
 # pyraygputils
-# GPU allocation/initialization/discovery utilities for ray cluster (python)
+
+GPU allocation/initialization/discovery utilities for ray cluster (python)
+
 Package: pyraygputils
 
 Richard Veale 2024
@@ -7,9 +9,12 @@ Richard Veale 2024
 # TO INSTALL:
 
 0) Install this package via pip in a virtual environment
-..1) python3 -m venv /path/to/MYVENV
-..2) source /path/to/MYENV/bin/activate
-..3) pip install /path/to/pyraygputils
+
+   1) python3 -m venv /path/to/MYVENV
+
+   2) source /path/to/MYENV/bin/activate
+
+   3) pip install /path/to/pyraygputils
 
 1) Install ansible (for ansible-playbook) via system package managers or
 otherwise (e.g. pip install ansible)
