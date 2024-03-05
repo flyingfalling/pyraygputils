@@ -229,7 +229,7 @@ def init_gpu_for_task( requested_gpumem_gb=0 ):
     
     #REV: if it is GPU, I need to find true GPU index, by dividing (floor) by
     # number of GPUs on this system, then getting the index of the GPU and setting
-    # NVIDIA_VISIBLE_DEVICES for it. Also check memoryFree. If heterogenous, search through
+    # CUDA_VISIBLE_DEVICES for it. Also check memoryFree. If heterogenous, search through
     # available.
     
     #REV: Unfortunately no good way to select. But I have ngpu, so I can assume it is the
@@ -377,7 +377,7 @@ def generate_ray_start_cmd(args):
     
     if not(args.ngpu):
         #args.ngpu, args.pergpu_gb = autodetect_gpus( );
-        gpulist, args.pergpu_gb = autodetect_gpus( );
+        gpulist, args.pergpu_gb = autodetect_gpus( args.mingb );
         args.ngpu = len(gpulist);
         args.pergpu_gb = int(args.pergpu_gb);
         args.gpulist = gpulist;
@@ -470,6 +470,8 @@ def generate_ray_commands():
     parser.add_argument("--ncpu", type=int, help="Set (override) num CPU of this node");
     parser.add_argument("--ngpu", type=int, help="Number of (useable) GPUs on the node");
     parser.add_argument("--memgb", type=int, help="Set (override) total mem (GB) of this node");
+    parser.add_argument("--mingb", type=int, help="Threshold below which GPUs will not be selected, for auto-detection", default=6 );
+    
     args = parser.parse_args();
 
     if( args.headnode ):

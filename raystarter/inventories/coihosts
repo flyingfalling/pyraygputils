@@ -20,6 +20,8 @@ RAYDEBUG=false
 #REV: dir to output ray commands to (for debug)
 RAYDEBUGDIR=~/
 
+GPUMINGB=6
+
 ###########################
 
 # define ray head node here (doing separate because may have different names e.g. ipaddr

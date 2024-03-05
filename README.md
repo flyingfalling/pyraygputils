@@ -38,7 +38,7 @@ execute the python script generate_ray_commands.py (e.g. set to
 4) Execute ansible to start the ray cluster:
 ansible-playbook -i /path/to/your/inventory /path/to/raystarter/playbooks/startray_ansible.yaml
 
-#REV: todo: make it so it copies a script to automatically run that, taking only a user -i argument?
+TODO: make it so it copies a script to automatically run that, taking only a user -i argument?
 
 
 # TO STOP RAY CLUSTER:
@@ -50,12 +50,27 @@ ansible-playbook -i /path/to/your/inventory /path/to/raystarter/playbooks/stopra
 
 # TO USE GPU RESOURCE:
 
-In your python script, include utilities from pyraygputils.pyraygputils (e.g. init_gpu_for_task)
+In your python script, include utilities from pyraygputils.pyraygputils (e.g. init_gpu_for_task).
+
+At cluster init, it will automatically create per-node a custom ray resource gpu1gb, gpu2gb, ... gpuNNgb, which are the number of chunks of that memory size (1 GB, 4 GB, 10 GB) which will fit within a GPU of that system. For example, if a node has 2x 12GB GPUs (total 24GB VRAM), and your task requires 8GB memory, your node can run only 2 tasks at a time (one on each GPU), since the 8GB can not be split between the GPUs.
+
+Currently, it does not handle requesting larger chunks (although you could request e.g. 4 gpu8gb if you wanted, and handle it yourself, it will correctly tell you the indices of the GPUs to use).
+
+In the code, it will tell you the true indices of the GPUs (e.g. as shown via nvidia-smi, in PCI bus order) to use, and it will also set CUDA_VISIBLE_DEVICES=X for you, where X is the gpu ID. After that, most CUDA-using software will obey that (grabbing the first GPU visible, which will be the only one that is visible). If you request multiple, it may set CUDA_VISIBLE_DEVICES=X,Y,Z, in which case you must handle the devices to use yourself.
+
+Note this package will select per-node the GPUs with the highest amount of memory up to the specified number of gpus (if you set ngpus=X in the ansible inventory for that node), and above a certain threshold (6GB per GPU, set in ansible inventory with GPUMINGB variable). So, a system may have a weak display GPU (e.g. 2GB nvidia P100), and stronger GPUs (e.g. 2x 16GB tesla P100). It will only select the 2 P100s (assuming GPUMINGB > 2). GPUMINGB is an integer, and it converts using base-10, so systems generally have e.g. 16.128GB or so of memory (for 16GB).
+
+Note, everything currently only works with NVIDIA CUDA GPUs...
+
+See examples/testray.py for an example of how to use utils for ray tasks.
+
+See scripts/startray.py for an example of how to start a ray cluster so that the correct custom GPU resources are defined.
+
 
 ```
 from pyraygputils.pyraygputils import init_gpu_for_task, raypool_from_resources;
 
-#Create a ray pool with desired resources (including gpumem_gb in the resources dict, how many gpu mem you want per task in gigabytes):
+#Create a ray pool with desired resources (including pergpu_gb in the resources dict, how many gpu mem you want per task in gigabytes):
 
 ncpuper=4; #4cpu
 memperproc=5e9; #5gb
