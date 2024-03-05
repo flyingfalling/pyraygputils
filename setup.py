@@ -25,7 +25,7 @@ setup(
     #packages=['eyeutils'],
     install_requires=required,
     packages=find_packages(),
-    long_description=read('readme.txt'),
+    long_description=read('README.md'),
     entry_points = {
         'console_scripts': [
             'pygenerateraystart = pyraygputils.pyraygputils:generate_ray_commands'
