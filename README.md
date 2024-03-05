@@ -47,9 +47,10 @@ TO USE GPU RESOURCE:
 
 In your python script, include utilities from pyraygputils.pyraygputils (e.g. init_gpu_for_task)
 
+```
 from pyraygputils.pyraygputils import init_gpu_for_task, raypool_from_resources;
 
-Create a ray pool with desired resources (including gpumem_gb in the resources dict, how many gpu mem you want per task in gigabytes):
+#Create a ray pool with desired resources (including gpumem_gb in the resources dict, how many gpu mem you want per task in gigabytes):
 
 ncpuper=4; #4cpu
 memperproc=5e9; #5gb
@@ -60,7 +61,7 @@ mypool = raypool_from_resources( reqresources=dict(num_cpus=ncpuper, memory=memp
 
 #REV: your task function. In your worker task function (which will be farmed out by ray):
 def yourfunct(idx):
-    init_gpu_for_task();
+    isready, gpuids, gpuresname = init_gpu_for_task();
     #do stuff
     return;
 
@@ -69,3 +70,5 @@ argslist = [(i,) for i in range(100)];
 
 #Run your function on the pool using starmap (or map etc.)
 reslist = list( mypool.starmap( yourfunct, argslist ) );
+
+```
