@@ -7,9 +7,9 @@ Richard Veale 2024
 TO INSTALL:
 
 0) Install this package via pip in a virtual environment
--a) python3 -m venv /path/to/MYVENV
--b) source /path/to/MYENV/bin/activate
--c) pip install /path/to/pyraygputils
+   a) python3 -m venv /path/to/MYVENV
+   b) source /path/to/MYENV/bin/activate
+   c) pip install /path/to/pyraygputils
 
 1) Install ansible (for ansible-playbook) via system package managers or
 otherwise (e.g. pip install ansible)
