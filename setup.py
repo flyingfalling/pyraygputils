@@ -28,7 +28,7 @@ setup(
     long_description=read('readme.txt'),
     entry_points = {
         'console_scripts': [
-            'pygenerateraystart = pyraygputils.generate_ray_commands:generate_ray_commands'
+            'pygenerateraystart = pyraygputils.pyraygputils:generate_ray_commands'
         ],
     },
     
