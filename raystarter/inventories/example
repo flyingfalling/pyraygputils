@@ -1,0 +1,44 @@
+## set up ssh user name and path to python3 ##
+[all:vars]
+ansible_python_interpreter='/usr/bin/env python3'
+
+## ray startup variables ##
+#REV: hostname or IP of ray head node
+rayheadnode=192.168.0.1
+rayport=6379
+
+#REV: path to the virtual environment containing ray (will be sourced on each node)
+rayvenvpath=~/venvs/rayvenv
+
+## REV: command that will be called to generate the ray command (a python script
+## installed in bin by this package hopefully, expect pygenerateraystart).
+#raystartcmdgenerator=python3 ~/code/ray/generate_ray_commands.py
+raystartcmdgenerator=pygenerateraystart
+
+#REV: set to true for debug (will not start ray, just print per-node commands to files)
+RAYDEBUG=false
+
+#REV: dir to output ray commands to (for debug)
+RAYDEBUGDIR=~/
+
+###########################
+
+
+# You may define customresources by naming your variable XXX raycustomresource_XXX
+# per-node. You may set numcpus per node to a different value than number of processors
+# using numcpus=N
+
+### # DEFINE RAY HEAD NODE HERE
+
+[rayheadnodes]
+192.168.0.1 raycustomresource_mything1=1 raycustomresource_mything2=3
+
+
+
+#### # DEFINE RAY WORKER NODES HERE
+
+[rayworkernodes]
+#REV: if you don't specify ncpus, it will automatically determine by num system cores.
+192.168.0.2 raycustomresource_mything1=1 raycustomresource_mything2=2
+
+192.168.0.3 numcpus=12 raycustomresource_mything1=2
