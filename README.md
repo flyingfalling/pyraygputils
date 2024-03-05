@@ -1,15 +1,15 @@
 # pyraygputils
-GPU allocation/initialization/discovery utilities for ray cluster (python)
+# GPU allocation/initialization/discovery utilities for ray cluster (python)
 Package: pyraygputils
 
 Richard Veale 2024
 
-TO INSTALL:
+# TO INSTALL:
 
 0) Install this package via pip in a virtual environment
-   a) python3 -m venv /path/to/MYVENV
-   b) source /path/to/MYENV/bin/activate
-   c) pip install /path/to/pyraygputils
+..1) python3 -m venv /path/to/MYVENV
+..2) source /path/to/MYENV/bin/activate
+..3) pip install /path/to/pyraygputils
 
 1) Install ansible (for ansible-playbook) via system package managers or
 otherwise (e.g. pip install ansible)
@@ -28,7 +28,7 @@ Alternatively, manually point the variable raystartcmdgenerator to
 execute the python script generate_ray_commands.py (e.g. set to
 "python3 /path/to/generate_ray_commands.py").
 
-TO START RAY CLUSTER:
+# TO START RAY CLUSTER:
 
 4) Execute ansible to start the ray cluster:
 ansible-playbook -i /path/to/your/inventory /path/to/raystarter/playbooks/startray_ansible.yaml
@@ -36,14 +36,14 @@ ansible-playbook -i /path/to/your/inventory /path/to/raystarter/playbooks/startr
 #REV: todo: make it so it copies a script to automatically run that, taking only a user -i argument?
 
 
-TO STOP RAY CLUSTER:
+# TO STOP RAY CLUSTER:
 
 5) Stop the cluster using:
 ansible-playbook -i /path/to/your/inventory /path/to/raystarter/playbooks/stopray_ansible.yaml
 
 
 
-TO USE GPU RESOURCE:
+# TO USE GPU RESOURCE:
 
 In your python script, include utilities from pyraygputils.pyraygputils (e.g. init_gpu_for_task)
 
