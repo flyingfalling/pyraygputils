@@ -7,10 +7,41 @@ import cv2;
 
 from pyraygputils.pyraygputils import *;
 
+def gputask():
+    #REV: will get device #0 (first of CUDA_VISIBLE_DEVICES)
+    device = cv2.ocl.Device_getDefault()
+    
+    print(f"Vendor ID: {device.vendorID()}")
+    print(f"Vendor name: {device.vendorName()}")
+    print(f"Name: {device.name()}")
+    print(f"Driver version: {device.driverVersion()}")
+    print(f"available: {device.available()}")
+    
+    print( f"Is an NVIDIA device {device.isNVidia()}")
+    print( f"Is an AMD device {device.isAMD()}")
+    print( f"Is a Intel device {device.isIntel()}")
+    
+    print(f"Global Memory size: {device.globalMemSize()}")
+    print(f"Memory cache size: {device.globalMemCacheSize()}")
 
+    print(f"Memory cache type: {device.globalMemCacheType()}")
+    print(f"Local Memory size: {device.localMemSize()}")
+    print(f"Local Memory type: {device.localMemType()}")
+    print(f"Max Clock frequency: {device.maxClockFrequency()}")
+    
+    print(("REV: To get opencv functions to use GPU, you (maybe) "
+           "must EXPORT OPENCV_OPENCL_DEVICE=:dgpu"));
+
+    os.environ['OPENCV_OPENCL_DEVICE']=':dgpu';
+    
+    return;
+                        
 def checkgpustuff(myidx):
     isready, gpuids, gpures = init_gpu_for_task();
     print("Initialized GPU! (RES: {}   IDS: {})".format(gpures, gpuids));
+    
+    #REV: test with a cv2.ocl funct
+    gputask();
     return;
 
 
