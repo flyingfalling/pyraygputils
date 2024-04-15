@@ -193,12 +193,12 @@ def init_gpu_for_task( requested_gpumem_gb=0 ):
         else:
             print("NO GPUs on node (this should not run...)");
             return False, dict(), 'NO_GPUS_ON_NODE';
-
+        
         if( len(keylist) > 1 ):
             raise Exception("More than 1 gpu mem type requested? {}".format(keylist));
-
+        
         gpures = keylist[0];
-        pattern='gpu([0-9])+gb';
+        pattern='gpu([0-9]+)gb';
         match = re.match(pattern, gpures);
         #reqgb = int(match.group(1));
         requested_gpumem_gb = int(match.group(1));
@@ -248,7 +248,7 @@ def init_gpu_for_task( requested_gpumem_gb=0 ):
     #REV: next subtract 4 (now=-1). RESULT: idx 1. (order in gpulist dict)
     #REV: example 2: let's say we just have 1.
     #REV: myidx = 0. numinme=1.
-
+    
     #REV: make sure I only select the ngpu "best" gpus (determined by amount of VRAM)
     myresources = ray_get_thisnode_resources();
     if( 'GPU' in myresources ):
@@ -271,21 +271,33 @@ def init_gpu_for_task( requested_gpumem_gb=0 ):
     
     
     truegpuids=dict();
-    
+
+    #REV: resourceidx will be "worker" number (on this machine)
+    #    (ridx is worker number, i.e. 0, 1, 2, 3, 4). Each worker takes up some proportion of
+    #   1 "whole" resource. No, it is indexing resources, not props of resrouces
+    ## as below, it will give me two (5,0.5), and three (5,0.33). This means that it will
+    ## break if I request less than 1 of a resource (since I don't know the order "within"
+    ## that resource). No, it is fine, since I don't care about the order "within" a
+    # resource as it will never slice across GPUs. Works due to my manual gpu8gb etc. method
+    # but would not work for simply TOTALGPUMEMORY method.
     for ridx in myresourceidxs:
         myidx = ridx[0]; #REV: is tuple (idx, proportion), e.g. (5, 0.5).
         proportion = ridx[1];
+        #if(proportion < 1):
+        #    raise Exception("ERROR pyragputils, proportion=={} but must be >= 1 (and integer, I think)?). This is due to shitty implementation of ray's resource indices for workers on each node, which does not index/order within a resource".format(proportion));
         #REV: multiply everything (all indices) by 1/proportion? NO, it is still telling
         #REV: me which PURE IDX to use (i.e. it will give me two (5, 0.5), three (5, 0.33).
-        print("FINDING GPU IDX FOR THREADIDX {} (system has {} GPUs: {})".format(myidx, len(gpulist), gpulist));
-        totalslots = myidx;
+        print("FINDING GPU IDX FOR THREADIDX {} (prop: {}) (system has {} GPUs: {})".format(myidx, proportion, len(gpulist), gpulist));
+        totalslots = myidx; #REV: this is total slots...beneath me? E.g. if I am 0, it is 0
         for gpuid in gpulist:
             mymem = int(gpulist[gpuid]);
             numinme = mymem // requested_gpumem_gb;
+            print("RESIDX [{}]  GPUID [{}] has [{}] mem, holds [{}] size [{}] tasks".format(myidx, gpuid, mymem, numinme, requested_gpumem_gb));
             if( totalslots >= 0 ):
                 totalslots -= numinme;
                 pass;
             if( totalslots < 0 ):
+                print("SETTING GPU OF RESOURCEIDX [{}] to [{}]".format(myidx, gpuid));
                 truegpuids[myidx] = gpuid;
                 break;
             pass;
